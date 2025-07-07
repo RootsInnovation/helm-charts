@@ -1,0 +1,8 @@
+owner: RootsInnovation
+git-repo: helm-charts
+charts-repo: https://RootsInnovation.github.io/helm-charts
+index-path: .
+package-path: .cr-release-packages
+token: "${CR_TOKEN}"
+generate-release-notes: true
+make-release-latest: true

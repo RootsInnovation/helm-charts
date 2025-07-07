@@ -1,0 +1,249 @@
+# Default values for synstream-operator.
+# This is a YAML-formatted file.
+
+# Number of operator pod replicas to run
+replicaCount: 1
+
+# Operator container image configuration
+image:
+  # Container registry (e.g., docker.io, ghcr.io, quay.io)
+  registry: ghcr.io
+  # Repository/organization name (e.g., rootsinnovation, mycompany)
+  repository: rootsinnovation
+  # Image name (should be synstream-operator)
+  name: synstream-operator
+  # Image pull policy: Always, IfNotPresent, Never
+  pullPolicy: IfNotPresent
+  # Image tag (use specific version in production, avoid 'latest')
+  tag: "v0.1.0"
+
+# Secrets for pulling images from private registries
+# Example:
+# imagePullSecrets:
+#   - name: myregistrykey
+imagePullSecrets: []
+
+# Override chart name (leave empty to use chart name)
+nameOverride: ""
+# Override full resource names (leave empty for auto-generated names)
+fullnameOverride: ""
+
+# SynStream application configuration
+# These settings define the default image that the operator will use
+# when creating Flow resources without explicit image configuration
+synstream:
+  # Default SynStream image configuration
+  image:
+    # Registry where SynStream images are stored
+    registry: ghcr.io
+    # Repository/organization for SynStream images
+    repository: rootsinnovation
+    # SynStream application image name
+    name: synstream
+    # Default SynStream image tag/version
+    tag: "v1.0.0"
+
+# Service account configuration
+serviceAccount:
+  # Whether to create a service account for the operator
+  create: true
+  # Whether to auto-mount the service account token
+  automount: true
+  # Additional annotations for the service account
+  # Example:
+  # annotations:
+  #   eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT:role/ROLE_NAME
+  annotations: {}
+  # Custom service account name (auto-generated if empty)
+  name: ""
+
+# Annotations to add to operator pods
+# Example:
+# podAnnotations:
+#   prometheus.io/scrape: "true"
+#   prometheus.io/port: "8443"
+podAnnotations: {}
+
+# Labels to add to operator pods
+# Example:
+# podLabels:
+#   environment: production
+#   team: platform
+podLabels: {}
+
+# Pod-level security context
+# Example:
+# podSecurityContext:
+#   runAsNonRoot: true
+#   runAsUser: 65532
+#   fsGroup: 65532
+podSecurityContext: {}
+
+# Container-level security context
+# Example:
+# securityContext:
+#   allowPrivilegeEscalation: false
+#   capabilities:
+#     drop:
+#     - ALL
+#   readOnlyRootFilesystem: true
+#   runAsNonRoot: true
+#   runAsUser: 65532
+securityContext: {}
+
+# Resource limits and requests for the operator container
+# Example:
+# resources:
+#   limits:
+#     cpu: 500m
+#     memory: 128Mi
+#   requests:
+#     cpu: 10m
+#     memory: 64Mi
+resources: {}
+
+# Liveness probe configuration
+# Checks if the operator is still running and healthy
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 8081
+  initialDelaySeconds: 15
+  periodSeconds: 20
+
+# Readiness probe configuration  
+# Checks if the operator is ready to serve requests
+readinessProbe:
+  httpGet:
+    path: /readyz
+    port: 8081
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+# Additional volumes to mount in the operator pod
+# Example:
+# volumes:
+#   - name: config-volume
+#     configMap:
+#       name: operator-config
+#   - name: secret-volume
+#     secret:
+#       secretName: operator-secrets
+volumes: []
+
+# Additional volume mounts for the operator container
+# Example:
+# volumeMounts:
+#   - name: config-volume
+#     mountPath: /etc/config
+#     readOnly: true
+#   - name: secret-volume
+#     mountPath: /etc/secrets
+#     readOnly: true
+volumeMounts: []
+
+# Metrics and monitoring configuration
+metrics:
+  # Whether to enable metrics endpoint
+  enabled: true
+  # Address and port for metrics server
+  # Use ":8443" for HTTPS, ":8080" for HTTP, "0" to disable
+  bindAddress: ":8443"
+  # Whether to serve metrics over HTTPS (recommended for production)
+  secureServing: true
+  
+  # Prometheus ServiceMonitor configuration
+  # Requires Prometheus Operator to be installed
+  serviceMonitor:
+    # Whether to create a ServiceMonitor resource
+    enabled: false
+    # Namespace for ServiceMonitor (defaults to operator namespace)
+    namespace: ""
+    # Additional labels for ServiceMonitor
+    # Example:
+    # labels:
+    #   prometheus: kube-prometheus
+    labels: {}
+    # Additional annotations for ServiceMonitor
+    annotations: {}
+    # Label selector for Prometheus to discover this ServiceMonitor
+    # Example:
+    # selector:
+    #   matchLabels:
+    #     app: prometheus
+    selector: {}
+    # How often Prometheus should scrape metrics
+    interval: 30s
+    # Timeout for metrics scraping
+    scrapeTimeout: 10s
+
+# Leader election configuration
+# Prevents multiple operator instances from conflicting
+leaderElection:
+  # Whether to enable leader election (recommended for HA setups)
+  enabled: true
+
+# RBAC (Role-Based Access Control) configuration
+rbac:
+  # Whether to create RBAC resources (ClusterRole, ClusterRoleBinding, etc.)
+  create: true
+
+# Custom Resource Definitions (CRDs) configuration
+crds:
+  # Whether to install Flow CRDs during helm install
+  install: true
+  # Whether to keep CRDs when uninstalling the chart
+  keep: true
+
+# Additional environment variables for the operator container
+# Example:
+# env:
+#   - name: LOG_LEVEL
+#     value: "debug"
+#   - name: FEATURE_GATE_X
+#     value: "true"
+env: []
+
+# Additional command-line arguments for the operator
+# Example:
+# extraArgs:
+#   - --log-level=debug
+#   - --feature-gates=ExperimentalFeature=true
+extraArgs: []
+
+# Extra volumes to mount (in addition to 'volumes' above)
+# Use this for advanced volume configurations
+extraVolumes: []
+
+# Extra volume mounts (in addition to 'volumeMounts' above)
+# Use this for advanced mount configurations
+extraVolumeMounts: []
+
+# Node selector for operator pod placement
+# Example:
+# nodeSelector:
+#   kubernetes.io/arch: amd64
+#   node-type: compute
+nodeSelector: {}
+
+# Tolerations for operator pod scheduling
+# Example:
+# tolerations:
+#   - key: "operator-node"
+#     operator: "Equal"
+#     value: "true"
+#     effect: "NoSchedule"
+tolerations: []
+
+# Affinity rules for operator pod placement
+# Example:
+# affinity:
+#   nodeAffinity:
+#     requiredDuringSchedulingIgnoredDuringExecution:
+#       nodeSelectorTerms:
+#       - matchExpressions:
+#         - key: kubernetes.io/arch
+#           operator: In
+#           values:
+#           - amd64
+affinity: {}

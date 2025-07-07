@@ -1,0 +1,17 @@
+# Helm
+*.tgz
+*.tar.gz
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+charts/*/charts/
+charts/*/Chart.lock

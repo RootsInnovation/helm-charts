@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "synstream-operator.fullname" . }}
+  labels:
+    control-plane: controller-manager
+    {{- include "synstream-operator.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+      {{- include "synstream-operator.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        kubectl.kubernetes.io/default-container: manager
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        control-plane: controller-manager
+        {{- include "synstream-operator.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "synstream-operator.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ include "synstream-operator.imageURL" . }}:{{ include "synstream-operator.imageTag" . }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+          - --leader-elect={{ .Values.leaderElection.enabled }}
+          - --health-probe-bind-address=:8081
+          {{- if .Values.metrics.enabled }}
+          - --metrics-bind-address={{ .Values.metrics.bindAddress }}
+          {{- if .Values.metrics.secureServing }}
+          - --metrics-secure={{ .Values.metrics.secureServing }}
+          {{- end }}
+          {{- else }}
+          - --metrics-bind-address=0
+          {{- end }}
+          {{- with .Values.extraArgs }}
+          {{- toYaml . | nindent 8 }}
+          {{- end }}
+          {{- if or .Values.env .Values.synstream.image }}
+          env:
+          {{- if .Values.synstream.image }}
+          - name: DEFAULT_SYNSTREAM_IMAGE_REGISTRY
+            value: {{ .Values.synstream.image.registry | quote }}
+          - name: DEFAULT_SYNSTREAM_IMAGE_REPOSITORY
+            value: {{ .Values.synstream.image.repository | quote }}
+          - name: DEFAULT_SYNSTREAM_IMAGE_NAME
+            value: {{ .Values.synstream.image.name | quote }}
+          - name: DEFAULT_SYNSTREAM_IMAGE_TAG
+            value: {{ include "synstream-operator.defaultImageTag" . | quote }}
+          - name: DEFAULT_SYNSTREAM_IMAGE_URL
+            value: {{ include "synstream-operator.defaultImageURL" . | quote }}
+          {{- end }}
+          {{- with .Values.env }}
+          {{- toYaml . | nindent 8 }}
+          {{- end }}
+          {{- end }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- with .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

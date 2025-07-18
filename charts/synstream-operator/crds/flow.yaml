@@ -1,0 +1,607 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.17.2
+  name: flows.synstream.rtsinv.com
+spec:
+  group: synstream.rtsinv.com
+  names:
+    kind: Flow
+    listKind: FlowList
+    plural: flows
+    singular: flow
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.phase
+      name: Phase
+      type: string
+    - jsonPath: .status.readyReplicas
+      name: Ready
+      type: integer
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: Flow is the Schema for the flows API.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: FlowSpec defines the desired state of Flow.
+            properties:
+              env:
+                description: Environment variables configuration
+                properties:
+                  configMapEnvFrom:
+                    description: Complete ConfigMap environment injection
+                    items:
+                      description: EnvFromSource defines source for envFrom
+                      properties:
+                        name:
+                          description: Source name (ConfigMap or Secret name)
+                          type: string
+                        optional:
+                          description: Optional field (defaults to false)
+                          type: boolean
+                        prefix:
+                          description: Prefix for environment variables
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
+                  configMapRefs:
+                    description: Environment variables from ConfigMaps
+                    items:
+                      description: EnvFromConfigMap defines environment variable from
+                        ConfigMap
+                      properties:
+                        configMapRef:
+                          description: ConfigMap reference
+                          properties:
+                            key:
+                              description: ConfigMap key
+                              type: string
+                            name:
+                              description: ConfigMap name
+                              type: string
+                            optional:
+                              description: Optional field (defaults to false)
+                              type: boolean
+                          required:
+                          - key
+                          - name
+                          type: object
+                        name:
+                          description: Environment variable name
+                          type: string
+                      required:
+                      - configMapRef
+                      - name
+                      type: object
+                    type: array
+                  secretEnvFrom:
+                    description: Complete Secret environment injection
+                    items:
+                      description: EnvFromSource defines source for envFrom
+                      properties:
+                        name:
+                          description: Source name (ConfigMap or Secret name)
+                          type: string
+                        optional:
+                          description: Optional field (defaults to false)
+                          type: boolean
+                        prefix:
+                          description: Prefix for environment variables
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
+                  secretRefs:
+                    description: Environment variables from Secrets
+                    items:
+                      description: EnvFromSecret defines environment variable from
+                        Secret
+                      properties:
+                        name:
+                          description: Environment variable name
+                          type: string
+                        secretRef:
+                          description: Secret reference
+                          properties:
+                            key:
+                              description: Secret key
+                              type: string
+                            name:
+                              description: Secret name
+                              type: string
+                            optional:
+                              description: Optional field (defaults to false)
+                              type: boolean
+                          required:
+                          - key
+                          - name
+                          type: object
+                      required:
+                      - name
+                      - secretRef
+                      type: object
+                    type: array
+                  variables:
+                    additionalProperties:
+                      type: string
+                    description: Direct environment variables (key-value pairs)
+                    type: object
+                type: object
+              git:
+                description: Git configuration for synstream
+                properties:
+                  branch:
+                    default: main
+                    description: Branch to clone
+                    type: string
+                  credentialsSecret:
+                    description: |-
+                      Secret name containing git credentials
+                      Secret should contain 'username' and 'token' keys
+                    type: string
+                  enabled:
+                    description: Enable git integration
+                    type: boolean
+                  repoURL:
+                    description: Repository URL (full git URL, e.g., https://github.com/user/repo.git)
+                    type: string
+                  skipSSLVerify:
+                    description: Skip SSL verification for git operations
+                    type: boolean
+                type: object
+              image:
+                description: Image configuration for synstream
+                properties:
+                  tag:
+                    default: latest
+                    description: Tag for the container image
+                    type: string
+                  url:
+                    default: ghcr.io/rootsinnovation/synstream
+                    description: Registry URL for the container image
+                    type: string
+                type: object
+              imagePullPolicy:
+                description: ImagePullPolicy for the container
+                type: string
+              imagePullSecrets:
+                description: Image pull secrets
+                items:
+                  type: string
+                type: array
+              ingress:
+                description: Ingress configuration
+                properties:
+                  annotations:
+                    additionalProperties:
+                      type: string
+                    description: Custom annotations for ingress
+                    type: object
+                  className:
+                    default: nginx
+                    description: Ingress class name
+                    type: string
+                  enabled:
+                    description: Enable ingress
+                    type: boolean
+                  host:
+                    description: Hostname for the ingress
+                    type: string
+                  tls:
+                    description: TLS configuration
+                    properties:
+                      enabled:
+                        description: Enable TLS
+                        type: boolean
+                      secretName:
+                        description: Secret name for TLS certificate
+                        type: string
+                    type: object
+                type: object
+              labels:
+                additionalProperties:
+                  type: string
+                description: Custom labels to add to pods and services
+                type: object
+              replicas:
+                default: 1
+                description: Replicas is the number of desired replicas
+                format: int32
+                type: integer
+              resources:
+                description: Resources for the container
+                properties:
+                  limits:
+                    description: CPU and memory limits
+                    properties:
+                      cpu:
+                        description: CPU requirement (e.g., "100m", "1")
+                        type: string
+                      memory:
+                        description: Memory requirement (e.g., "128Mi", "1Gi")
+                        type: string
+                    type: object
+                  requests:
+                    description: CPU and memory requests
+                    properties:
+                      cpu:
+                        description: CPU requirement (e.g., "100m", "1")
+                        type: string
+                      memory:
+                        description: Memory requirement (e.g., "128Mi", "1Gi")
+                        type: string
+                    type: object
+                type: object
+              securityContext:
+                description: Security context configuration
+                properties:
+                  container:
+                    description: Container security context
+                    properties:
+                      allowPrivilegeEscalation:
+                        description: Allow privilege escalation
+                        type: boolean
+                      capabilities:
+                        description: Capabilities
+                        properties:
+                          add:
+                            description: Add capabilities
+                            items:
+                              type: string
+                            type: array
+                          drop:
+                            description: Drop capabilities
+                            items:
+                              type: string
+                            type: array
+                        type: object
+                      privileged:
+                        description: Privileged mode
+                        type: boolean
+                      readOnlyRootFilesystem:
+                        description: Read-only root filesystem
+                        type: boolean
+                      runAsGroup:
+                        description: Run as group ID
+                        format: int64
+                        type: integer
+                      runAsNonRoot:
+                        description: Run as non-root
+                        type: boolean
+                      runAsUser:
+                        description: Run as user ID
+                        format: int64
+                        type: integer
+                    type: object
+                  pod:
+                    description: Pod security context
+                    properties:
+                      fsGroup:
+                        description: FSGroup for volume ownership
+                        format: int64
+                        type: integer
+                      fsGroupChangePolicy:
+                        description: FSGroupChangePolicy
+                        type: string
+                      runAsGroup:
+                        description: Run as group ID
+                        format: int64
+                        type: integer
+                      runAsNonRoot:
+                        description: Run as non-root
+                        type: boolean
+                      runAsUser:
+                        description: Run as user ID
+                        format: int64
+                        type: integer
+                      supplementalGroups:
+                        description: Supplemental groups
+                        items:
+                          format: int64
+                          type: integer
+                        type: array
+                    type: object
+                type: object
+              service:
+                description: Service configuration
+                properties:
+                  annotations:
+                    additionalProperties:
+                      type: string
+                    description: Additional annotations for service
+                    type: object
+                  loadBalancerIP:
+                    description: LoadBalancer IP (only used when type is LoadBalancer)
+                    type: string
+                  nodePort:
+                    description: NodePort (only used when type is NodePort)
+                    format: int32
+                    type: integer
+                  port:
+                    description: Service port configuration
+                    format: int32
+                    type: integer
+                  targetPort:
+                    default: 1880
+                    description: Target port (defaults to 1880)
+                    format: int32
+                    type: integer
+                  type:
+                    default: ClusterIP
+                    description: Service type (ClusterIP, NodePort, LoadBalancer)
+                    type: string
+                type: object
+              storage:
+                description: Storage configuration
+                properties:
+                  deletionPolicy:
+                    default: Retain
+                    description: PVC deletion policy when Flow is deleted
+                    enum:
+                    - Retain
+                    - Delete
+                    type: string
+                  enabled:
+                    description: Enable persistent storage for /data directory
+                    type: boolean
+                  existingPVCName:
+                    description: Use existing PVC by name for /data directory
+                    type: string
+                  size:
+                    default: 10Gi
+                    description: Size of the persistent volume for /data
+                    type: string
+                  storageClassName:
+                    description: Storage class name for new PVC
+                    type: string
+                type: object
+              timezone:
+                description: Timezone configuration
+                type: string
+              volumes:
+                description: Additional volumes configuration
+                items:
+                  description: VolumeConfig defines additional volume configuration
+                  properties:
+                    mountPath:
+                      description: Mount path in the container
+                      type: string
+                    name:
+                      description: Volume name (will be used as mount name)
+                      type: string
+                    source:
+                      description: Volume source configuration
+                      properties:
+                        configMap:
+                          description: ConfigMap configuration for this volume
+                          properties:
+                            defaultMode:
+                              description: Default file permission mode (defaults
+                                to 0644)
+                              format: int32
+                              type: integer
+                            items:
+                              description: Specific items to mount from ConfigMap
+                              items:
+                                description: KeyToPath defines mapping from key to
+                                  file path
+                                properties:
+                                  key:
+                                    description: Key in the ConfigMap or Secret
+                                    type: string
+                                  mode:
+                                    description: File permission mode (optional)
+                                    format: int32
+                                    type: integer
+                                  path:
+                                    description: File path to mount the key (relative
+                                      to mount path)
+                                    type: string
+                                required:
+                                - key
+                                - path
+                                type: object
+                              type: array
+                            name:
+                              description: ConfigMap name
+                              type: string
+                            optional:
+                              description: Optional field (defaults to false)
+                              type: boolean
+                          required:
+                          - name
+                          type: object
+                        emptyDir:
+                          description: EmptyDir configuration for this volume
+                          properties:
+                            medium:
+                              description: Storage medium (defaults to default storage
+                                medium of the node)
+                              type: string
+                            sizeLimit:
+                              description: Size limit for the EmptyDir volume
+                              type: string
+                          type: object
+                        pvc:
+                          description: PVC configuration for this volume
+                          properties:
+                            create:
+                              description: Create new PVC with specified configuration
+                              properties:
+                                accessModes:
+                                  default:
+                                  - ReadWriteOnce
+                                  description: Access modes for the PVC
+                                  items:
+                                    type: string
+                                  type: array
+                                deletionPolicy:
+                                  default: Retain
+                                  description: PVC deletion policy when Flow is deleted
+                                  enum:
+                                  - Retain
+                                  - Delete
+                                  type: string
+                                size:
+                                  description: Size of the persistent volume
+                                  type: string
+                                storageClassName:
+                                  description: Storage class name
+                                  type: string
+                              required:
+                              - size
+                              type: object
+                            existingPVCName:
+                              description: Use existing PVC by name
+                              type: string
+                          type: object
+                        secret:
+                          description: Secret configuration for this volume
+                          properties:
+                            defaultMode:
+                              description: Default file permission mode (defaults
+                                to 0644)
+                              format: int32
+                              type: integer
+                            items:
+                              description: Specific items to mount from Secret
+                              items:
+                                description: KeyToPath defines mapping from key to
+                                  file path
+                                properties:
+                                  key:
+                                    description: Key in the ConfigMap or Secret
+                                    type: string
+                                  mode:
+                                    description: File permission mode (optional)
+                                    format: int32
+                                    type: integer
+                                  path:
+                                    description: File path to mount the key (relative
+                                      to mount path)
+                                    type: string
+                                required:
+                                - key
+                                - path
+                                type: object
+                              type: array
+                            name:
+                              description: Secret name
+                              type: string
+                            optional:
+                              description: Optional field (defaults to false)
+                              type: boolean
+                          required:
+                          - name
+                          type: object
+                      type: object
+                  required:
+                  - mountPath
+                  - name
+                  - source
+                  type: object
+                type: array
+            type: object
+          status:
+            description: FlowStatus defines the observed state of Flow.
+            properties:
+              conditions:
+                description: Conditions represent the latest available observations
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              observedGeneration:
+                description: ObservedGeneration is the most recent generation observed
+                format: int64
+                type: integer
+              phase:
+                description: Phase indicates the current phase of the Flow
+                type: string
+              readyReplicas:
+                description: Replicas is the number of ready replicas
+                format: int32
+                type: integer
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

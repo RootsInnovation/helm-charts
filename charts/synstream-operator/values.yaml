@@ -15,7 +15,7 @@ image:
   # Image pull policy: Always, IfNotPresent, Never
   pullPolicy: IfNotPresent
   # Image tag (use specific version in production, avoid 'latest')
-  tag: "v0.1.0"
+  tag: "v0.1.3"
 
 # Secrets for pulling images from private registries
 # Example:
@@ -186,14 +186,7 @@ leaderElection:
 # RBAC (Role-Based Access Control) configuration
 rbac:
   # Whether to create RBAC resources (ClusterRole, ClusterRoleBinding, etc.)
-  create: true
-
-# Custom Resource Definitions (CRDs) configuration
-crds:
-  # Whether to install Flow CRDs during helm install
-  install: true
-  # Whether to keep CRDs when uninstalling the chart
-  keep: true
+  enable: true
 
 # Additional environment variables for the operator container
 # Example:

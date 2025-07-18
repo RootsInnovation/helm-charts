@@ -3,8 +3,10 @@ name: synstream-operator
 description: A Helm chart for SynStream Operator - Kubernetes operator for managing SynStream flows
 type: application
 version: 0.1.0
-appVersion: "v0.1.0"
+appVersion: "v0.1.3"
 home: https://rtsinv.com
 maintainers:
   - name: Jose Wang
     email: jose@rtsinv.com
+keywords:
+  - synstream

@@ -1,4 +1,4 @@
-{{- if .Values.rbac.create -}}
+{{- if .Values.rbac.enable -}}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -49,6 +49,7 @@ rules:
   - synstream.rtsinv.com
   resources:
   - flows
+  - licenses
   verbs:
   - create
   - delete
@@ -61,12 +62,14 @@ rules:
   - synstream.rtsinv.com
   resources:
   - flows/finalizers
+  - licenses/finalizers
   verbs:
   - update
 - apiGroups:
   - synstream.rtsinv.com
   resources:
   - flows/status
+  - licenses/status
   verbs:
   - get
   - patch
@@ -126,6 +129,7 @@ rules:
   verbs:
   - create
   - patch
+
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

@@ -1,39 +1,54 @@
-1. SynStream Operator has been deployed!
+SynStream Operator has been successfully deployed!
 
-2. Check the operator status:
+Quick Start:
+
+1. Check operator status:
    kubectl get deployment {{ include "synstream-operator.fullname" . }} -n {{ .Release.Namespace }}
 
-3. Watch for the operator to be ready:
+2. Wait for operator to be ready:
    kubectl wait --for=condition=available deployment/{{ include "synstream-operator.fullname" . }} -n {{ .Release.Namespace }} --timeout=300s
 
-4. Verify CRDs are installed:
-   kubectl get crd flows.synstream.rtsinv.com
+License Management:
 
-{{- if .Values.metrics.enabled }}
-5. Metrics are available at:
-   kubectl port-forward service/{{ include "synstream-operator.fullname" . }}-metrics-service {{ .Values.metrics.bindAddress }} -n {{ .Release.Namespace }}
-{{- end }}
+Create a License resource to configure your license:
+   kubectl apply -f - <<EOF
+   apiVersion: synstream.rtsinv.com/v1
+   kind: License
+   metadata:
+     name: synstream-license
+   spec:
+     licenseKey: "your-license-key-here"
+   EOF
 
-6. Create your first SynStream Flow:
+Update existing license key:
+   kubectl patch license synstream-license --type='merge' -p='{"spec":{"licenseKey":"your-new-license-key"}}'
+
+Check license status:
+   kubectl get license
+   kubectl describe license synstream-license
+
+Create your first SynStream Flow:
+
    kubectl apply -f - <<EOF
    apiVersion: synstream.rtsinv.com/v1
    kind: Flow
    metadata:
      name: my-first-flow
-     namespace: {{ .Release.Namespace }}
    spec:
      image:
-       url: {{ include "synstream-operator.defaultImageURL" . }}
-       tag: {{ include "synstream-operator.defaultImageTag" . }}
+       url: {{ .Values.synstream.image.registry }}/{{ .Values.synstream.image.repository }}/{{ .Values.synstream.image.name }}
+       tag: {{ .Values.synstream.image.tag }}
      replicas: 1
      service:
        type: ClusterIP
        port: 1880
-       targetPort: 1880
+     storage:
+       enabled: true
+       size: 10Gi
    EOF
 
-7. Check your Flow status:
-   kubectl get flows -n {{ .Release.Namespace }}
-   kubectl describe flow my-first-flow -n {{ .Release.Namespace }}
+Monitor your Flow:
+   kubectl get flows
+   kubectl describe flow my-first-flow
 
-For more information, visit: https://github.com/RootsInnovation/synstream-operator
+Happy streaming with SynStream!

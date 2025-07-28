@@ -2,8 +2,8 @@ apiVersion: v2
 name: synstream-operator
 description: A Helm chart for SynStream Operator - Kubernetes operator for managing SynStream flows
 type: application
-version: 0.1.2
-appVersion: "v0.1.3"
+version: 0.1.3
+appVersion: "v0.1.4"
 home: https://rtsinv.com
 maintainers:
   - name: Jose Wang

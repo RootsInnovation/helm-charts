@@ -1,3 +1,4 @@
+---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
@@ -229,6 +230,21 @@ spec:
                   type: string
                 description: Custom labels to add to pods and services
                 type: object
+              managerServiceName:
+                default: synstream-manager-service
+                description: SynStream Manager service name (used for auto-generating
+                  URL)
+                type: string
+              managerServicePort:
+                default: 8080
+                description: SynStream Manager service port
+                format: int32
+                type: integer
+              managerServiceURL:
+                description: |-
+                  SynStream Manager service URL configuration
+                  If not specified, will be auto-generated using ManagerServiceName
+                type: string
               replicas:
                 default: 1
                 description: Replicas is the number of desired replicas

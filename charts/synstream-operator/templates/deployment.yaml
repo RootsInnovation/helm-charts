@@ -65,6 +65,12 @@ spec:
             value: {{ include "synstream-operator.defaultImageTag" . | quote }}
           - name: DEFAULT_SYNSTREAM_IMAGE_URL
             value: {{ include "synstream-operator.defaultImageURL" . | quote }}
+          - name: CLUSTER_DOMAIN
+            value: {{ .Values.clusterDomain | default "svc.cluster.local" | quote }}
+          - name: DEFAULT_MANAGER_SERVICE_NAME
+            value: {{ .Values.managerServiceName | default "synstream-manager-service" | quote }}
+          - name: DEFAULT_MANAGER_SERVICE_PORT
+            value: {{ .Values.managerServicePort | default "8080" | quote }}
           {{- end }}
           {{- with .Values.env }}
           {{- toYaml . | nindent 8 }}

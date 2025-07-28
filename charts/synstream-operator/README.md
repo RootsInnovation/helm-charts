@@ -7,14 +7,14 @@ Kubernetes operator for managing SynStream Flow applications.
 ### Add Helm Repository
 
 ```bash
-helm repo add synstream https://charts.synstream.rtsinv.com
+helm repo add roots-innovation https://RootsInnovation.github.io/helm-charts
 helm repo update
 ```
 ### Install
 
 ```bash
 # Install with default settings
-helm install synstream-operator ./charts/synstream-operator
+helm install synstream-operator roots-innovation/synstream-operator
 ```
 
 ## Configuration
@@ -25,7 +25,7 @@ helm install synstream-operator ./charts/synstream-operator
 | `image.registry` | Container registry | `ghcr.io` |
 | `image.repository` | Repository/organization name | `rootsinnovation` |
 | `image.name` | Operator image name | `synstream-operator` |
-| `image.tag` | Operator image tag | `v0.1.3` |
+| `image.tag` | Operator image tag | `v0.1.4` |
 | `image.pullPolicy` | Image pull policy | `Always` |
 | `imagePullSecrets` | Secrets for pulling images from private registries | `[]` |
 | `nameOverride` | Override chart name | `""` |

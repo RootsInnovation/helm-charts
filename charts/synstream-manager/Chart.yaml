@@ -1,0 +1,13 @@
+apiVersion: v2
+name: synstream-manager
+description: SynStream Manager service for flow and license management
+type: application
+version: 0.0.1
+appVersion: "v0.0.1"
+home: https://rtsinv.com
+maintainers:
+  - name: Jose Wang
+    email: jose@rtsinv.com
+keywords:
+  - synstream
+  - manager

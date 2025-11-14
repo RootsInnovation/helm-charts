@@ -1,0 +1,13 @@
+{{- if .Values.reverseProxy.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: synstream-reverse-proxy-config
+  labels:
+    {{- include "synstream.componentLabels" (dict "name" "synstream-reverse-proxy" "workloadType" "deployment" "Chart" .Chart "Release" .Release) | nindent 4 }}
+data:
+  SERVER_PORT: {{ .Values.reverseProxy.config.serverPort | quote }}
+  AUTH_SERVER_URL: {{ .Values.reverseProxy.config.authServerUrl | quote }}
+  LOG_LEVEL: {{ .Values.reverseProxy.config.logLevel | quote }}
+{{- end }}
+

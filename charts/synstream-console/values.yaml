@@ -1,0 +1,465 @@
+# Default values for synstream-console (Umbrella Chart).
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Global configuration shared across all components
+global:
+  # Image pull secrets for private registry access
+  imagePullSecrets: []
+    # - name: ghcr-imagepullsecret
+  
+  # Default image registry and repository
+  image:
+    registry: ghcr.io
+    repository: rootsinnovation
+    pullPolicy: Always
+
+# =============================================================================
+# Frontend Console (Deployment)
+# =============================================================================
+console:
+  enabled: true
+  replicaCount: 1
+  
+  image:
+    name: synstream-console-vite
+    tag: "poc"
+  
+  service:
+    type: ClusterIP
+    port: 80
+    annotations: {}
+  
+  serviceAccount:
+    create: true
+    automount: true
+    annotations: {}
+    name: ""
+  
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  
+  podAnnotations: {}
+  podLabels: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# =============================================================================
+# Nginx Gateway (Deployment)
+# =============================================================================
+nginx:
+  enabled: true
+  replicaCount: 1
+  
+  image:
+    name: nginx
+    tag: "latest"
+    # Override registry for nginx (use Docker Hub)
+    registry: ""
+    repository: ""
+  
+  service:
+    type: LoadBalancer
+    port: 80
+    annotations: {}
+  
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  
+  # Nginx configuration
+  config:
+    defaultConf: |
+      server {
+          listen 80;
+          server_name _;
+          
+          # API 路由 - 导向后端服务
+          location /api/v2 {
+              proxy_pass http://synstream-auth:8080;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $scheme;
+          }
+          
+          
+          # API 路由 - 导向后端服务
+          location /api/v1 {
+              proxy_pass http://synstream-k8s-resource:8080;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $scheme;
+          }
+          
+          # API 路由 - 导向后端服务
+          location /api/v1/proxy {
+              proxy_pass http://synstream-reverse-proxy:8090;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $scheme;
+          }
+          
+          # 其他所有路由 - 导向前端服务
+          location / {
+              proxy_pass http://synstream-console-vite:80;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $scheme;
+          }
+      }
+  
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# =============================================================================
+# Auth Service (StatefulSet)
+# =============================================================================
+auth:
+  enabled: true
+  replicaCount: 1
+  
+  image:
+    name: synstream-auth
+    tag: "poc"
+  
+  service:
+    type: ClusterIP
+    port: 8080
+    annotations: {}
+  
+  serviceAccount:
+    create: true
+    automount: true
+    annotations: {}
+    name: ""
+  
+  # Persistent storage configuration
+  storage:
+    enabled: true
+    size: 1Gi
+    accessMode: ReadWriteOnce
+    # storageClass: ""  # Use default storage class
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: false
+    capabilities:
+      drop:
+        - ALL
+  
+  podSecurityContext:
+    fsGroup: 1001
+  
+  # Configuration for auth service
+  config:
+    serverHost: "0.0.0.0"
+    serverPort: "8080"
+    databaseType: "sqlite"
+    databasePath: "/app/data/auth.db"
+    jwtSecretKey: "your-secret-key-here-please-change-in-production"
+    jwtAccessTokenDuration: "3600"
+    jwtRefreshTokenDuration: "86400"
+    cookieEnabled: "true"
+    cookieDomain: ""
+    cookiePath: "/"
+    cookieSecure: "false"
+    cookieHttpOnly: "true"
+    cookieSameSite: "lax"
+    corsEnabled: "true"
+    corsAllowCredentials: "true"
+    corsMaxAge: "86400"
+  
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# =============================================================================
+# AI Service (StatefulSet)
+# =============================================================================
+ai:
+  enabled: true
+  replicaCount: 1
+  
+  image:
+    name: synstream-ai
+    tag: "poc"
+  
+  service:
+    type: ClusterIP
+    port: 8000
+    annotations: {}
+  
+  serviceAccount:
+    create: true
+    automount: true
+    annotations: {}
+    name: ""
+  
+  # Persistent storage configuration
+  storage:
+    enabled: true
+    size: 1Gi
+    accessMode: ReadWriteOnce
+    # storageClass: ""
+  
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+  
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+  
+  # Configuration for AI service
+  config:
+    port: "8000"
+    authServerUrl: "http://synstream-auth:8080"
+    disableAuth: "false"
+    allowedOrigins: "*"
+    defaultModelId: "gemini-flash"
+    dbType: "sqlite"
+    dbPath: "./data/user-models.db"
+    # OpenAI Models
+    openai0Id: "openai-gpt5"
+    openai0Name: "OpenAI GPT-5"
+    openai0Model: "gpt-5-mini"
+    openai1Id: "openai-gpt35"
+    openai1Name: "OpenAI GPT-3.5"
+    openai1Model: "gpt-3.5-turbo"
+    # Gemini Models
+    gemini0Id: "gemini-flash"
+    gemini0Name: "Gemini Flash"
+    gemini0Model: "gemini-2.0-flash"
+    # Anthropic Models
+    anthropic0Id: "claude-opus"
+    anthropic0Name: "Claude Opus"
+    anthropic0Model: "claude-3-opus-20240229"
+    # OpenAI-Compatible Models
+    openaiCompatible0Id: "custom-llm"
+    openaiCompatible0Name: "Custom LLM"
+    openaiCompatible0Model: "openai/gpt-oss-20b"
+    openaiCompatible0Url: "http://localhost:1234/v1"
+  
+  # AI API secrets (should be provided via values or external secret management)
+  secrets:
+    # Set to true to create a Secret resource
+    create: false
+    # API keys for AI services
+    openai0ApiKey: ""
+    openai1ApiKey: ""
+    gemini0ApiKey: ""
+    anthropic0ApiKey: ""
+    openaiCompatible0ApiKey: ""
+  
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# =============================================================================
+# K8s Resource Service (Deployment)
+# =============================================================================
+k8sResource:
+  enabled: true
+  replicaCount: 2
+  
+  image:
+    name: synstream-k8s-resource
+    tag: "poc"
+  
+  service:
+    type: ClusterIP
+    port: 8080
+    annotations: {}
+  
+  serviceAccount:
+    create: true
+    automount: true
+    annotations: {}
+    name: ""
+  
+  # RBAC configuration - requires ClusterRole
+  rbac:
+    create: true
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+  
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+  
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+  
+  # Configuration for k8s resource service
+  config:
+    serverPort: "8080"
+    authServerUrl: "http://synstream-auth:8080"
+    k8sConfigMode: "in-cluster"
+    logLevel: "info"
+  
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# =============================================================================
+# Reverse Proxy Service (Deployment)
+# =============================================================================
+reverseProxy:
+  enabled: true
+  replicaCount: 2
+  
+  image:
+    name: synstream-reverse-proxy
+    tag: "poc"
+  
+  service:
+    type: ClusterIP
+    port: 8090
+    annotations: {}
+  
+  serviceAccount:
+    create: true
+    automount: true
+    annotations: {}
+    name: ""
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+  
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+  
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+  
+  # Configuration for reverse proxy service
+  config:
+    serverPort: "8090"
+    authServerUrl: "http://synstream-auth:8080"
+    logLevel: "info"
+  
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# =============================================================================
+# Ingress Configuration
+# =============================================================================
+ingress:
+  enabled: false
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-nginx
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  
+  hosts:
+    - host: console.rtsinv.com
+      paths:
+        - path: /
+          pathType: Prefix
+  
+  tls:
+    - secretName: letsencrypt-nginx
+      hosts:
+        - console.rtsinv.com

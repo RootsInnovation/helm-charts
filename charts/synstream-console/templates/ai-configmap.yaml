@@ -1,0 +1,39 @@
+{{- if .Values.ai.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: synstream-ai-config
+  labels:
+    {{- include "synstream.componentLabels" (dict "name" "synstream-ai" "workloadType" "statefulset" "Chart" .Chart "Release" .Release) | nindent 4 }}
+data:
+  PORT: {{ .Values.ai.config.port | quote }}
+  AUTH_SERVER_URL: {{ .Values.ai.config.authServerUrl | quote }}
+  DISABLE_AUTH: {{ .Values.ai.config.disableAuth | quote }}
+  ALLOWED_ORIGINS: {{ .Values.ai.config.allowedOrigins | quote }}
+  DEFAULT_MODEL_ID: {{ .Values.ai.config.defaultModelId | quote }}
+  # AI Model Configuration (Indexed Format - Similar to Go Viper)
+  # OpenAI Models
+  OPENAI_0_ID: {{ .Values.ai.config.openai0Id | quote }}
+  OPENAI_0_NAME: {{ .Values.ai.config.openai0Name | quote }}
+  OPENAI_0_MODEL: {{ .Values.ai.config.openai0Model | quote }}
+  OPENAI_1_ID: {{ .Values.ai.config.openai1Id | quote }}
+  OPENAI_1_NAME: {{ .Values.ai.config.openai1Name | quote }}
+  OPENAI_1_MODEL: {{ .Values.ai.config.openai1Model | quote }}
+  # Gemini Models
+  GEMINI_0_ID: {{ .Values.ai.config.gemini0Id | quote }}
+  GEMINI_0_NAME: {{ .Values.ai.config.gemini0Name | quote }}
+  GEMINI_0_MODEL: {{ .Values.ai.config.gemini0Model | quote }}
+  # Anthropic Models
+  ANTHROPIC_0_ID: {{ .Values.ai.config.anthropic0Id | quote }}
+  ANTHROPIC_0_NAME: {{ .Values.ai.config.anthropic0Name | quote }}
+  ANTHROPIC_0_MODEL: {{ .Values.ai.config.anthropic0Model | quote }}
+  # OpenAI-Compatible Models (Custom LLM)
+  OPENAI_COMPATIBLE_0_ID: {{ .Values.ai.config.openaiCompatible0Id | quote }}
+  OPENAI_COMPATIBLE_0_NAME: {{ .Values.ai.config.openaiCompatible0Name | quote }}
+  OPENAI_COMPATIBLE_0_MODEL: {{ .Values.ai.config.openaiCompatible0Model | quote }}
+  OPENAI_COMPATIBLE_0_URL: {{ .Values.ai.config.openaiCompatible0Url | quote }}
+  # Database Configuration
+  DB_TYPE: {{ .Values.ai.config.dbType | quote }}
+  DB_PATH: {{ .Values.ai.config.dbPath | quote }}
+{{- end }}
+

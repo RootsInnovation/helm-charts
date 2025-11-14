@@ -15,7 +15,7 @@ image:
   # Image pull policy: Always, IfNotPresent, Never
   pullPolicy: IfNotPresent
   # Image tag (use specific version in production, avoid 'latest')
-  tag: "v0.1.4"
+  tag: "v0.1.7"
 
 # Secrets for pulling images from private registries
 # Example:

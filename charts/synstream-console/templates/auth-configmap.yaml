@@ -1,0 +1,26 @@
+{{- if .Values.auth.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: synstream-auth-config
+  labels:
+    {{- include "synstream.componentLabels" (dict "name" "synstream-auth" "workloadType" "statefulset" "Chart" .Chart "Release" .Release) | nindent 4 }}
+data:
+  SERVER_HOST: {{ .Values.auth.config.serverHost | quote }}
+  SERVER_PORT: {{ .Values.auth.config.serverPort | quote }}
+  DATABASE_TYPE: {{ .Values.auth.config.databaseType | quote }}
+  DATABASE_PATH: {{ .Values.auth.config.databasePath | quote }}
+  JWT_SECRET_KEY: {{ .Values.auth.config.jwtSecretKey | quote }}
+  JWT_ACCESS_TOKEN_DURATION: {{ .Values.auth.config.jwtAccessTokenDuration | quote }}
+  JWT_REFRESH_TOKEN_DURATION: {{ .Values.auth.config.jwtRefreshTokenDuration | quote }}
+  COOKIE_ENABLED: {{ .Values.auth.config.cookieEnabled | quote }}
+  COOKIE_DOMAIN: {{ .Values.auth.config.cookieDomain | quote }}
+  COOKIE_PATH: {{ .Values.auth.config.cookiePath | quote }}
+  COOKIE_SECURE: {{ .Values.auth.config.cookieSecure | quote }}
+  COOKIE_HTTP_ONLY: {{ .Values.auth.config.cookieHttpOnly | quote }}
+  COOKIE_SAME_SITE: {{ .Values.auth.config.cookieSameSite | quote }}
+  CORS_ENABLED: {{ .Values.auth.config.corsEnabled | quote }}
+  CORS_ALLOW_CREDENTIALS: {{ .Values.auth.config.corsAllowCredentials | quote }}
+  CORS_MAX_AGE: {{ .Values.auth.config.corsMaxAge | quote }}
+{{- end }}
+

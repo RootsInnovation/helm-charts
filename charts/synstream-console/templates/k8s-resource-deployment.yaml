@@ -1,0 +1,65 @@
+{{- if .Values.k8sResource.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: synstream-k8s-resource
+  labels:
+    {{- include "synstream.componentLabels" (dict "name" "synstream-k8s-resource" "workloadType" "deployment" "Chart" .Chart "Release" .Release) | nindent 4 }}
+spec:
+  replicas: {{ .Values.k8sResource.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "synstream.componentSelectorLabels" (dict "name" "synstream-k8s-resource") | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        {{- with .Values.k8sResource.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "synstream.componentLabels" (dict "name" "synstream-k8s-resource" "workloadType" "deployment" "Chart" .Chart "Release" .Release) | nindent 8 }}
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- include "synstream.imagePullSecrets" . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.k8sResource.serviceAccount.create }}
+      serviceAccountName: {{ include "synstream.componentServiceAccountName" (dict "component" .Values.k8sResource "name" "k8s-resource") }}
+      {{- end }}
+      containers:
+        - name: synstream-k8s-resource
+          image: "{{ include "synstream.componentImageURL" (dict "component" .Values.k8sResource "global" .Values.global "defaultName" "synstream-k8s-resource") }}:{{ include "synstream.componentImageTag" (dict "component" .Values.k8sResource "default" "poc") }}"
+          imagePullPolicy: {{ include "synstream.componentImagePullPolicy" (dict "component" .Values.k8sResource "global" .Values.global) }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: synstream-k8s-resource-config
+          resources:
+            {{- toYaml .Values.k8sResource.resources | nindent 12 }}
+          {{- if .Values.k8sResource.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.k8sResource.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.k8sResource.readinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.k8sResource.readinessProbe | nindent 12 }}
+          {{- end }}
+          securityContext:
+            {{- toYaml .Values.k8sResource.securityContext | nindent 12 }}
+      {{- with .Values.k8sResource.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.k8sResource.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.k8sResource.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
+

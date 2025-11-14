@@ -1,0 +1,22 @@
+{{- if .Values.k8sResource.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: synstream-k8s-resource
+  labels:
+    {{- include "synstream.componentLabels" (dict "name" "synstream-k8s-resource" "workloadType" "deployment" "Chart" .Chart "Release" .Release) | nindent 4 }}
+  {{- with .Values.k8sResource.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.k8sResource.service.type }}
+  ports:
+    - port: {{ .Values.k8sResource.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "synstream.componentSelectorLabels" (dict "name" "synstream-k8s-resource") | nindent 4 }}
+{{- end }}
+

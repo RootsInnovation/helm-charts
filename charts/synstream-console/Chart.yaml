@@ -1,0 +1,17 @@
+apiVersion: v2
+name: synstream-console
+description: Complete SynStream platform deployment including frontend console, backend services (auth, AI), k8s resource management, and nginx gateway
+type: application
+version: 0.1.0
+appVersion: "poc"
+home: https://rtsinv.com
+maintainers:
+  - name: Jose Wang
+    email: jose@rtsinv.com
+keywords:
+  - synstream
+  - console
+  - platform
+  - umbrella
+  - frontend
+  - backend

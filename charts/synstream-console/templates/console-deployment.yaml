@@ -1,0 +1,54 @@
+{{- if .Values.console.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: synstream-console-vite
+  labels:
+    {{- include "synstream.componentLabels" (dict "name" "synstream-console-vite" "workloadType" "deployment" "Chart" .Chart "Release" .Release) | nindent 4 }}
+spec:
+  replicas: {{ .Values.console.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "synstream.componentSelectorLabels" (dict "name" "synstream-console-vite") | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        {{- with .Values.console.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "synstream.componentLabels" (dict "name" "synstream-console-vite" "workloadType" "deployment" "Chart" .Chart "Release" .Release) | nindent 8 }}
+        {{- with .Values.console.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- include "synstream.imagePullSecrets" . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.console.serviceAccount.create }}
+      serviceAccountName: {{ include "synstream.componentServiceAccountName" (dict "component" .Values.console "name" "console-vite") }}
+      {{- end }}
+      containers:
+        - name: synstream-console-vite
+          image: "{{ include "synstream.componentImageURL" (dict "component" .Values.console "global" .Values.global "defaultName" "synstream-console-vite") }}:{{ include "synstream.componentImageTag" (dict "component" .Values.console "default" "poc") }}"
+          imagePullPolicy: {{ include "synstream.componentImagePullPolicy" (dict "component" .Values.console "global" .Values.global) }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.console.resources | nindent 12 }}
+      {{- with .Values.console.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.console.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.console.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

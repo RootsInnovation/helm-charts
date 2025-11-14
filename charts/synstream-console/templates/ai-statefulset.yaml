@@ -1,0 +1,85 @@
+{{- if .Values.ai.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: synstream-ai
+  labels:
+    {{- include "synstream.componentLabels" (dict "name" "synstream-ai" "workloadType" "statefulset" "Chart" .Chart "Release" .Release) | nindent 4 }}
+spec:
+  serviceName: synstream-ai
+  replicas: {{ .Values.ai.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "synstream.componentSelectorLabels" (dict "name" "synstream-ai") | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        {{- with .Values.ai.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "synstream.componentLabels" (dict "name" "synstream-ai" "workloadType" "statefulset" "Chart" .Chart "Release" .Release) | nindent 8 }}
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- include "synstream.imagePullSecrets" . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.ai.serviceAccount.create }}
+      serviceAccountName: {{ include "synstream.componentServiceAccountName" (dict "component" .Values.ai "name" "ai") }}
+      {{- end }}
+      containers:
+        - name: synstream-ai
+          image: "{{ include "synstream.componentImageURL" (dict "component" .Values.ai "global" .Values.global "defaultName" "synstream-ai") }}:{{ include "synstream.componentImageTag" (dict "component" .Values.ai "default" "poc") }}"
+          imagePullPolicy: {{ include "synstream.componentImagePullPolicy" (dict "component" .Values.ai "global" .Values.global) }}
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: synstream-ai-config
+            {{- if .Values.ai.secrets.create }}
+            - secretRef:
+                name: synstream-ai-secrets
+            {{- end }}
+          resources:
+            {{- toYaml .Values.ai.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+          {{- if .Values.ai.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.ai.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.ai.readinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.ai.readinessProbe | nindent 12 }}
+          {{- end }}
+      {{- with .Values.ai.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.ai.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.ai.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  {{- if .Values.ai.storage.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - {{ .Values.ai.storage.accessMode }}
+        {{- if .Values.ai.storage.storageClass }}
+        storageClassName: {{ .Values.ai.storage.storageClass }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.ai.storage.size }}
+  {{- end }}
+{{- end }}
+

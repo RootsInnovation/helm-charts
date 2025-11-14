@@ -1,0 +1,14 @@
+{{- if .Values.k8sResource.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: synstream-k8s-resource-config
+  labels:
+    {{- include "synstream.componentLabels" (dict "name" "synstream-k8s-resource" "workloadType" "deployment" "Chart" .Chart "Release" .Release) | nindent 4 }}
+data:
+  SERVER_PORT: {{ .Values.k8sResource.config.serverPort | quote }}
+  AUTH_SERVER_URL: {{ .Values.k8sResource.config.authServerUrl | quote }}
+  K8S_CONFIG_MODE: {{ .Values.k8sResource.config.k8sConfigMode | quote }}
+  LOG_LEVEL: {{ .Values.k8sResource.config.logLevel | quote }}
+{{- end }}
+

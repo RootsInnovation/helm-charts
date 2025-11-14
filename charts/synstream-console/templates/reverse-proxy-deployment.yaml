@@ -1,0 +1,65 @@
+{{- if .Values.reverseProxy.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: synstream-reverse-proxy
+  labels:
+    {{- include "synstream.componentLabels" (dict "name" "synstream-reverse-proxy" "workloadType" "deployment" "Chart" .Chart "Release" .Release) | nindent 4 }}
+spec:
+  replicas: {{ .Values.reverseProxy.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "synstream.componentSelectorLabels" (dict "name" "synstream-reverse-proxy") | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        {{- with .Values.reverseProxy.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "synstream.componentLabels" (dict "name" "synstream-reverse-proxy" "workloadType" "deployment" "Chart" .Chart "Release" .Release) | nindent 8 }}
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- include "synstream.imagePullSecrets" . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.reverseProxy.serviceAccount.create }}
+      serviceAccountName: {{ include "synstream.componentServiceAccountName" (dict "component" .Values.reverseProxy "name" "reverse-proxy") }}
+      {{- end }}
+      containers:
+        - name: synstream-reverse-proxy
+          image: "{{ include "synstream.componentImageURL" (dict "component" .Values.reverseProxy "global" .Values.global "defaultName" "synstream-reverse-proxy") }}:{{ include "synstream.componentImageTag" (dict "component" .Values.reverseProxy "default" "poc") }}"
+          imagePullPolicy: {{ include "synstream.componentImagePullPolicy" (dict "component" .Values.reverseProxy "global" .Values.global) }}
+          ports:
+            - name: http
+              containerPort: 8090
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: synstream-reverse-proxy-config
+          resources:
+            {{- toYaml .Values.reverseProxy.resources | nindent 12 }}
+          {{- if .Values.reverseProxy.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.reverseProxy.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.reverseProxy.readinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.reverseProxy.readinessProbe | nindent 12 }}
+          {{- end }}
+          securityContext:
+            {{- toYaml .Values.reverseProxy.securityContext | nindent 12 }}
+      {{- with .Values.reverseProxy.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.reverseProxy.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.reverseProxy.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
+

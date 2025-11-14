@@ -1,0 +1,21 @@
+{{- if .Values.console.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: synstream-console-vite
+  labels:
+    {{- include "synstream.componentLabels" (dict "name" "synstream-console-vite" "workloadType" "deployment" "Chart" .Chart "Release" .Release) | nindent 4 }}
+  {{- with .Values.console.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.console.service.type }}
+  ports:
+    - port: {{ .Values.console.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "synstream.componentSelectorLabels" (dict "name" "synstream-console-vite") | nindent 4 }}
+{{- end }}

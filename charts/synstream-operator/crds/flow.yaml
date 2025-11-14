@@ -24,6 +24,24 @@ spec:
     - jsonPath: .metadata.creationTimestamp
       name: Age
       type: date
+    - jsonPath: .status.serviceType
+      name: Service Type
+      type: string
+    - jsonPath: .status.port
+      name: Port
+      type: integer
+    - jsonPath: .status.nodePort
+      name: NodePort
+      type: integer
+    - jsonPath: .status.externalIP
+      name: ExternalIP
+      type: string
+    - jsonPath: .status.tls
+      name: TLS
+      type: boolean
+    - jsonPath: .status.ingressHost
+      name: Ingress Host
+      type: string
     name: v1
     schema:
       openAPIV3Schema:
@@ -604,6 +622,16 @@ spec:
                   - type
                   type: object
                 type: array
+              externalIP:
+                description: ExternalIP
+                type: string
+              ingressHost:
+                description: Ingress Host
+                type: string
+              nodePort:
+                description: NodePort
+                format: int32
+                type: integer
               observedGeneration:
                 description: ObservedGeneration is the most recent generation observed
                 format: int64
@@ -611,10 +639,26 @@ spec:
               phase:
                 description: Phase indicates the current phase of the Flow
                 type: string
+              port:
+                description: Port
+                format: int32
+                type: integer
               readyReplicas:
                 description: Replicas is the number of ready replicas
                 format: int32
                 type: integer
+              serviceType:
+                description: Service Type
+                type: string
+              tls:
+                description: TLS
+                type: boolean
+            required:
+            - externalIP
+            - ingressHost
+            - port
+            - serviceType
+            - tls
             type: object
         type: object
     served: true

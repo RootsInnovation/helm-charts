@@ -1,0 +1,101 @@
+name: Update Helm Repository Index
+
+on:
+  workflow_dispatch:  # Manual trigger to rebuild index
+    inputs:
+      force-rebuild:
+        description: 'Force rebuild entire index'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  update-index:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "$GITHUB_ACTOR"
+          git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Package all charts
+        run: |
+          mkdir -p .cr-release-packages
+          
+          for chart in charts/*/; do
+            if [ -f "${chart}Chart.yaml" ]; then
+              chart_name=$(basename "$chart")
+              echo "📦 Packaging ${chart_name}..."
+              helm package "$chart" -d .cr-release-packages
+            fi
+          done
+          
+          echo "=== Packaged charts ==="
+          ls -lh .cr-release-packages/
+
+      - name: Update repository index
+        run: |
+          cd gh-pages
+          
+          # Move packages to gh-pages if needed
+          if [ "${{ inputs.force-rebuild }}" == "true" ]; then
+            echo "🔄 Force rebuilding index..."
+            rm -f index.yaml
+          fi
+          
+          # Generate/update index
+          helm repo index . --url https://rootsinnovation.github.io/helm-charts --merge index.yaml || helm repo index . --url https://rootsinnovation.github.io/helm-charts
+          
+          echo "=== Updated index.yaml ==="
+          cat index.yaml
+
+      - name: Commit and push changes
+        run: |
+          cd gh-pages
+          
+          git add index.yaml
+          
+          if git diff --staged --quiet; then
+            echo "✅ No changes to commit"
+          else
+            git commit -m "Update Helm repository index
+
+            Updated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+            Trigger: ${{ github.event_name }}
+            Actor: ${{ github.actor }}"
+            
+            git push origin gh-pages
+            echo "✅ Index updated and pushed"
+          fi
+
+      - name: Summary
+        run: |
+          echo "## 📦 Helm Repository Updated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Repository URL: https://rootsinnovation.github.io/helm-charts" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Add repository:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "helm repo add roots-innovation https://rootsinnovation.github.io/helm-charts" >> $GITHUB_STEP_SUMMARY
+          echo "helm repo update" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+

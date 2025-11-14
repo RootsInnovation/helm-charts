@@ -1,0 +1,105 @@
+name: Setup GitHub Pages
+
+on:
+  workflow_dispatch:  # Manual trigger
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/pages.yml'
+
+jobs:
+  setup-pages:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Check if gh-pages branch exists
+        id: check-branch
+        run: |
+          if git ls-remote --heads origin gh-pages | grep gh-pages; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "✅ gh-pages branch already exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "❌ gh-pages branch does not exist"
+          fi
+
+      - name: Create gh-pages branch
+        if: steps.check-branch.outputs.exists == 'false'
+        run: |
+          echo "Creating gh-pages branch..."
+          git checkout --orphan gh-pages
+          git reset --hard
+          
+          # Create initial index.yaml
+          cat > index.yaml << 'EOF'
+          apiVersion: v1
+          entries: {}
+          generated: "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          EOF
+          
+          # Create README
+          cat > README.md << 'EOF'
+          # SynStream Helm Charts Repository
+          
+          This branch contains the Helm chart repository index and packages.
+          
+          ## Usage
+          
+          Add this repository to Helm:
+          
+          \`\`\`bash
+          helm repo add roots-innovation https://rootsinnovation.github.io/helm-charts
+          helm repo update
+          \`\`\`
+          
+          ## Available Charts
+          
+          View available charts:
+          
+          \`\`\`bash
+          helm search repo roots-innovation
+          \`\`\`
+          EOF
+          
+          git add index.yaml README.md
+          git commit -m "Initialize gh-pages branch"
+          git push origin gh-pages
+          echo "✅ gh-pages branch created and pushed"
+
+      - name: Verify gh-pages setup
+        run: |
+          git fetch origin gh-pages
+          git checkout gh-pages
+          
+          echo "=== gh-pages branch contents ==="
+          ls -la
+          
+          if [ -f "index.yaml" ]; then
+            echo "✅ index.yaml exists"
+            echo "=== index.yaml content ==="
+            cat index.yaml
+          else
+            echo "❌ index.yaml not found"
+            exit 1
+          fi
+
+      - name: Enable GitHub Pages
+        run: |
+          echo "✅ GitHub Pages should be enabled automatically"
+          echo "📝 Please verify at: https://github.com/${{ github.repository }}/settings/pages"
+          echo "   Source should be: Deploy from a branch"
+          echo "   Branch should be: gh-pages / (root)"
+

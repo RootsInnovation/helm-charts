@@ -1,0 +1,77 @@
+{{- if .Values.auth.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: synstream-auth
+  labels:
+    {{- include "synstream.componentLabels" (dict "name" "synstream-auth" "workloadType" "statefulset" "Chart" .Chart "Release" .Release) | nindent 4 }}
+spec:
+  serviceName: synstream-auth
+  replicas: {{ .Values.auth.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "synstream.componentSelectorLabels" (dict "name" "synstream-auth") | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        {{- with .Values.auth.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "synstream.componentLabels" (dict "name" "synstream-auth" "workloadType" "statefulset" "Chart" .Chart "Release" .Release) | nindent 8 }}
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- include "synstream.imagePullSecrets" . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.auth.serviceAccount.create }}
+      serviceAccountName: {{ include "synstream.componentServiceAccountName" (dict "component" .Values.auth "name" "auth") }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.auth.podSecurityContext | nindent 8 }}
+      containers:
+        - name: synstream-auth
+          image: "{{ include "synstream.componentImageURL" (dict "component" .Values.auth "global" .Values.global "defaultName" "synstream-auth") }}:{{ include "synstream.componentImageTag" (dict "component" .Values.auth "default" "poc") }}"
+          imagePullPolicy: {{ include "synstream.componentImagePullPolicy" (dict "component" .Values.auth "global" .Values.global) }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: synstream-auth-config
+          resources:
+            {{- toYaml .Values.auth.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+          securityContext:
+            {{- toYaml .Values.auth.securityContext | nindent 12 }}
+      {{- with .Values.auth.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.auth.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.auth.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  {{- if .Values.auth.storage.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - {{ .Values.auth.storage.accessMode }}
+        {{- if .Values.auth.storage.storageClass }}
+        storageClassName: {{ .Values.auth.storage.storageClass }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.auth.storage.size }}
+  {{- end }}
+{{- end }}
+

@@ -1,0 +1,17 @@
+apiVersion: v2
+name: synstream-console-project
+description: console project for synstream
+type: application
+version: 1.2.0
+appVersion: "v1.2.0"
+home: https://rtsinv.com
+maintainers:
+  - name: Jose Wang
+    email: jose@rtsinv.com
+keywords:
+  - synstream
+  - console
+  - platform
+  - umbrella
+  - frontend
+  - backend

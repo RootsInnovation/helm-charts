@@ -1,0 +1,12 @@
+{{- if .Values.nginx.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: synstream-nginx-config
+  labels:
+    {{- include "synstream.componentLabels" (dict "name" "synstream-nginx" "workloadType" "deployment" "Chart" .Chart "Release" .Release) | nindent 4 }}
+data:
+  default.conf: |
+{{- .Values.nginx.config.defaultConf | nindent 4 }}
+{{- end }}
+

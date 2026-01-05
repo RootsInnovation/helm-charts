@@ -1,0 +1,104 @@
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                    SynStream Platform Deployed Successfully!                  ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+{{ if .Values.ingress.enabled }}
+📡 INGRESS ACCESS (External):
+{{- range .Values.ingress.hosts }}
+   URL: http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
+{{- end }}
+{{ else }}
+🌐 NGINX GATEWAY ACCESS:
+{{- if contains "LoadBalancer" .Values.nginx.service.type }}
+   NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+   
+   Run these commands to get the URL:
+   
+   export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} synstream-nginx -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+   echo "SynStream URL: http://$SERVICE_IP"
+   
+{{- else if contains "NodePort" .Values.nginx.service.type }}
+   export NODE_PORT=$(kubectl get svc --namespace {{ .Release.Namespace }} synstream-nginx -o jsonpath='{.spec.ports[0].nodePort}')
+   export NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[0].address}')
+   echo "SynStream URL: http://$NODE_IP:$NODE_PORT"
+   
+{{- else if contains "ClusterIP" .Values.nginx.service.type }}
+   To access the application locally, run:
+   
+   kubectl port-forward svc/synstream-nginx 8080:80 --namespace {{ .Release.Namespace }}
+   echo "SynStream URL: http://localhost:8080"
+   
+{{- end }}
+{{- end }}
+
+📦 DEPLOYED COMPONENTS:
+
+Frontend:
+{{- if .Values.console.enabled }}
+  ✓ Console (Deployment) - Web Frontend
+{{- else }}
+  ✗ Console - Disabled
+{{- end }}
+
+Gateway:
+{{- if .Values.nginx.enabled }}
+  ✓ Nginx (Deployment) - API Gateway & Routing
+{{- else }}
+  ✗ Nginx - Disabled
+{{- end }}
+
+Backend Services:
+{{- if .Values.auth.enabled }}
+  ✓ Auth Service (StatefulSet{{ if .Values.auth.storage.enabled }} - {{ .Values.auth.storage.size }} storage{{ end }})
+{{- else }}
+  ✗ Auth Service - Disabled
+{{- end }}
+{{- if .Values.ai.enabled }}
+  ✓ AI Service (Deployment)
+{{- else }}
+  ✗ AI Service - Disabled
+{{- end }}
+
+📋 USEFUL COMMANDS:
+
+# Check pod status
+kubectl get pods --namespace {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }}
+
+# Check deployments and statefulsets
+kubectl get deploy,sts --namespace {{ .Release.Namespace }}
+
+# View logs from all components
+kubectl logs --namespace {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }} --all-containers=true
+
+# Check specific service logs
+{{- if .Values.auth.enabled }}
+kubectl logs --namespace {{ .Release.Namespace }} -l app=synstream-auth -f
+{{- end }}
+{{- if .Values.ai.enabled }}
+kubectl logs --namespace {{ .Release.Namespace }} -l app=synstream-ai -f
+{{- end }}
+
+# Check persistent volumes (StatefulSets)
+kubectl get pvc --namespace {{ .Release.Namespace }}
+
+{{ if and .Values.auth.enabled (eq .Values.auth.config.jwtSecretKey "your-secret-key-here-please-change-in-production") }}
+⚠️  WARNING: Default JWT secret key detected in auth service!
+   For production, set a secure random key:
+   
+   --set auth.config.jwtSecretKey="your-secure-random-key"
+{{ end }}
+
+
+{{ if and .Values.ai.enabled (not .Values.ai.secrets.create) }}
+ℹ️  INFO: AI service is enabled but secrets are not configured.
+   To use AI features, configure API keys:
+   
+   --set ai.secrets.create=true \
+   --set ai.secrets.gemini0ApiKey="your-api-key" \
+   --set ai.secrets.openai0ApiKey="your-api-key"
+{{ end }}
+
+📖 Documentation: https://github.com/RootsInnovation/helm-charts
+🆘 Support: https://rtsinv.com
+
+Happy Streaming! 🚀

@@ -38,6 +38,11 @@ helm install synstream-console roots-innovation/synstream-console \
   --namespace synstream \
   --create-namespace \
   --set 'global.imagePullSecrets[0].name=ghcr-imagepullsecret'
+
+helm install synstream-console-project roots-innovation/synstream-console-project \
+  --namespace synstream-project \
+  --create-namespace \
+  --set 'global.imagePullSecrets[0].name=ghcr-imagepullsecret'
 ```
 
 ## Available Charts

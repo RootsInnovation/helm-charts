@@ -3,6 +3,28 @@ entries:
   synstream-console:
   - apiVersion: v2
     appVersion: poc
+    created: "2026-01-05T01:31:02.747783287Z"
+    description: Complete SynStream platform deployment including frontend console,
+      backend services (auth, AI), k8s resource management, and nginx gateway
+    digest: 29d57cbeb612460dd64cf9ebf6c7ab09ecc7d7c8ed1746a4182cdf59e30d3aeb
+    home: https://rtsinv.com
+    keywords:
+    - synstream
+    - console
+    - platform
+    - umbrella
+    - frontend
+    - backend
+    maintainers:
+    - email: jose@rtsinv.com
+      name: Jose Wang
+    name: synstream-console
+    type: application
+    urls:
+    - https://github.com/RootsInnovation/helm-charts/releases/download/synstream-console-1.2.0/synstream-console-1.2.0.tgz
+    version: 1.2.0
+  - apiVersion: v2
+    appVersion: poc
     created: "2025-11-14T05:43:53.136994695Z"
     description: Complete SynStream platform deployment including frontend console,
       backend services (auth, AI), k8s resource management, and nginx gateway
@@ -23,7 +45,46 @@ entries:
     urls:
     - https://github.com/RootsInnovation/helm-charts/releases/download/synstream-console-0.1.5/synstream-console-0.1.5.tgz
     version: 0.1.5
+  synstream-console-project:
+  - apiVersion: v2
+    appVersion: v1.2.0
+    created: "2026-01-05T01:31:02.883649951Z"
+    description: console project for synstream
+    digest: 005ad4b3972635b86b19fa8d4c9d18d965f39ea1048194c77739e28f0481f348
+    home: https://rtsinv.com
+    keywords:
+    - synstream
+    - console
+    - platform
+    - umbrella
+    - frontend
+    - backend
+    maintainers:
+    - email: jose@rtsinv.com
+      name: Jose Wang
+    name: synstream-console-project
+    type: application
+    urls:
+    - https://github.com/RootsInnovation/helm-charts/releases/download/synstream-console-project-1.2.0/synstream-console-project-1.2.0.tgz
+    version: 1.2.0
   synstream-manager:
+  - apiVersion: v2
+    appVersion: v0.0.1
+    created: "2026-01-05T01:31:03.037895049Z"
+    description: SynStream Manager service for flow and license management
+    digest: 207f5aa5700caee172eafdeafef71e81aaa284985680ae254b017f2d3c4c64a9
+    home: https://rtsinv.com
+    keywords:
+    - synstream
+    - manager
+    maintainers:
+    - email: jose@rtsinv.com
+      name: Jose Wang
+    name: synstream-manager
+    type: application
+    urls:
+    - https://github.com/RootsInnovation/helm-charts/releases/download/synstream-manager-1.2.0/synstream-manager-1.2.0.tgz
+    version: 1.2.0
   - apiVersion: v2
     appVersion: v0.0.1
     created: "2025-11-14T05:43:53.389037264Z"
@@ -59,6 +120,23 @@ entries:
     - https://github.com/RootsInnovation/helm-charts/releases/download/synstream-manager-0.0.1/synstream-manager-0.0.1.tgz
     version: 0.0.1
   synstream-operator:
+  - apiVersion: v2
+    appVersion: v0.1.4
+    created: "2026-01-05T01:31:03.195783179Z"
+    description: A Helm chart for SynStream Operator - Kubernetes operator for managing
+      SynStream flows
+    digest: fdae2f59cc00fac3d322130d7e7abe1dfc9e5c98d80213ba360b54df9c2e075e
+    home: https://rtsinv.com
+    keywords:
+    - synstream
+    maintainers:
+    - email: jose@rtsinv.com
+      name: Jose Wang
+    name: synstream-operator
+    type: application
+    urls:
+    - https://github.com/RootsInnovation/helm-charts/releases/download/synstream-operator-1.2.0/synstream-operator-1.2.0.tgz
+    version: 1.2.0
   - apiVersion: v2
     appVersion: v0.1.4
     created: "2025-11-14T05:43:53.589554467Z"
@@ -140,4 +218,4 @@ entries:
     urls:
     - https://github.com/RootsInnovation/helm-charts/releases/download/synstream-operator-0.1.0/synstream-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2025-11-14T05:43:53.589589384Z"
+generated: "2026-01-05T01:31:03.19582224Z"

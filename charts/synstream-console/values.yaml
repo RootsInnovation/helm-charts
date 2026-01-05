@@ -61,8 +61,8 @@ nginx:
     name: nginx
     tag: "latest"
     # Override registry for nginx (use Docker Hub)
-    registry: ""
-    repository: ""
+    registry: "docker.io"
+    repository: "library"
   
   service:
     type: LoadBalancer
@@ -301,7 +301,7 @@ ai:
 # =============================================================================
 k8sResource:
   enabled: true
-  replicaCount: 2
+  replicaCount: 1
   
   image:
     name: synstream-k8s-resource
@@ -374,7 +374,7 @@ k8sResource:
 # =============================================================================
 reverseProxy:
   enabled: true
-  replicaCount: 2
+  replicaCount: 1
   
   image:
     name: synstream-reverse-proxy

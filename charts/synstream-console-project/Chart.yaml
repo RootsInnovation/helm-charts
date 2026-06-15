@@ -2,7 +2,7 @@ apiVersion: v2
 name: synstream-console-project
 description: console project for synstream
 type: application
-version: 1.2.0
+version: 1.2.1
 appVersion: "v1.2.0"
 home: https://rtsinv.com
 maintainers:

@@ -112,7 +112,21 @@ nginx:
 auth:
   enabled: true
   replicaCount: 1
-  
+
+  # Extra environment variables for the auth container.
+  # Recommended: provide the license HMAC secret via a pre-created K8s Secret
+  # (do NOT commit the secret value to the chart). The Secret must hold the same
+  # value the operator and license-cli sign/verify with. If left empty, the auth
+  # service falls back to the legacy hardcoded secret.
+  #
+  # extraEnv:
+  #   - name: LICENSE_JWT_SECRET
+  #     valueFrom:
+  #       secretKeyRef:
+  #         name: synstream-license-secret
+  #         key: secret
+  extraEnv: []
+
   image:
     name: synstream-auth-project
     tag: "v1.2.0"

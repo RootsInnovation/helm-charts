@@ -202,6 +202,16 @@ rbac:
 #     value: "debug"
 #   - name: FEATURE_GATE_X
 #     value: "true"
+#
+# Recommended: provide the license HMAC secret via a pre-created K8s Secret
+# (same value the auth service and license-cli sign/verify with). If left unset,
+# the operator falls back to the legacy hardcoded secret.
+# env:
+#   - name: LICENSE_JWT_SECRET
+#     valueFrom:
+#       secretKeyRef:
+#         name: synstream-license-secret
+#         key: secret
 env: []
 
 # Additional command-line arguments for the operator

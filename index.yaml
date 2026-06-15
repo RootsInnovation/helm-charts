@@ -48,6 +48,27 @@ entries:
   synstream-console-project:
   - apiVersion: v2
     appVersion: v1.2.0
+    created: "2026-06-15T15:00:07.064040949Z"
+    description: console project for synstream
+    digest: 5d66484f777f2eeb71144ae995890235419168475e08ae870c174e33dd935fb2
+    home: https://rtsinv.com
+    keywords:
+    - synstream
+    - console
+    - platform
+    - umbrella
+    - frontend
+    - backend
+    maintainers:
+    - email: jose@rtsinv.com
+      name: Jose Wang
+    name: synstream-console-project
+    type: application
+    urls:
+    - https://github.com/RootsInnovation/helm-charts/releases/download/synstream-console-project-1.2.1/synstream-console-project-1.2.1.tgz
+    version: 1.2.1
+  - apiVersion: v2
+    appVersion: v1.2.0
     created: "2026-01-05T01:31:02.883649951Z"
     description: console project for synstream
     digest: 005ad4b3972635b86b19fa8d4c9d18d965f39ea1048194c77739e28f0481f348
@@ -120,6 +141,23 @@ entries:
     - https://github.com/RootsInnovation/helm-charts/releases/download/synstream-manager-0.0.1/synstream-manager-0.0.1.tgz
     version: 0.0.1
   synstream-operator:
+  - apiVersion: v2
+    appVersion: v0.1.4
+    created: "2026-06-15T15:00:07.272877554Z"
+    description: A Helm chart for SynStream Operator - Kubernetes operator for managing
+      SynStream flows
+    digest: 9e9dfc6153672dd8f05a0a35715e4bfe989624a2dbf984434ce43d441c3971d7
+    home: https://rtsinv.com
+    keywords:
+    - synstream
+    maintainers:
+    - email: jose@rtsinv.com
+      name: Jose Wang
+    name: synstream-operator
+    type: application
+    urls:
+    - https://github.com/RootsInnovation/helm-charts/releases/download/synstream-operator-1.2.1/synstream-operator-1.2.1.tgz
+    version: 1.2.1
   - apiVersion: v2
     appVersion: v0.1.4
     created: "2026-01-05T01:31:03.195783179Z"
@@ -218,4 +256,4 @@ entries:
     urls:
     - https://github.com/RootsInnovation/helm-charts/releases/download/synstream-operator-0.1.0/synstream-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2026-01-05T01:31:03.19582224Z"
+generated: "2026-06-15T15:00:07.272904063Z"

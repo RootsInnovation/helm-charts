@@ -40,6 +40,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: synstream-auth-config
+            - secretRef:
+                name: synstream-auth-secret
           {{- with .Values.auth.extraEnv }}
           env:
             {{- toYaml . | nindent 12 }}

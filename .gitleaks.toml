@@ -1,0 +1,27 @@
+# gitleaks configuration for Synstream repositories.
+# Extends the upstream default ruleset and adds project-specific allowlists.
+
+title = "Synstream gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Synstream-wide allowlist"
+regexes = [
+  # Ed25519 PUBLIC key used to verify license signatures. Public keys are not
+  # secrets and are intentionally embedded in the binaries.
+  '''1Qph6xp/NA8K68dNFLX6tdTl213NUGXyZXUApaO7eWk=''',
+  # Non-secret local-development placeholders. Clearly marked and never deployed;
+  # the services reject these values at startup (see config validation).
+  '''dev-insecure-[a-z0-9!-]+''',
+
+  # TEMPORARY (SYN-130): legacy secrets that were committed and have since been
+  # removed from source and rotated/retired, but still exist in git history.
+  # Delete this block once the history scrub (git filter-repo / BFG) is done so
+  # any reintroduction is blocked again.
+  '''35dd9c9bb9e4[0-9a-f]*e491''',
+  '''default-jwt-secret-key-change-in-production''',
+  '''your-secret-key-here-please-change-in-production''',
+  '''aB3dE6gH9jK2mN5pQ8sT1vW4yZ7xC0uF''',
+]

@@ -142,7 +142,8 @@ helm install synstream-console roots-innovation/synstream-console -f custom-valu
 | `auth.service.port` | Service port | `8080` |
 | `auth.storage.enabled` | Enable persistent storage | `true` |
 | `auth.storage.size` | Storage size | `1Gi` |
-| `auth.config.jwtSecretKey` | JWT secret key (⚠️ change in production) | `your-secret-key-here-please-change-in-production` |
+| `auth.secrets.jwtSecretKey` | JWT secret key, rendered into a Secret (required; `openssl rand -base64 48`) | `""` |
+| `auth.secrets.encryptionKey` | 32-byte AES key for TOTP secrets, rendered into a Secret (required) | `""` |
 | `auth.resources.limits.cpu` | CPU limit | `500m` |
 | `auth.resources.limits.memory` | Memory limit | `512Mi` |
 

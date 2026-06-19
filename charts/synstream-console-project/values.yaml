@@ -175,7 +175,6 @@ auth:
     serverPort: "8080"
     databaseType: "sqlite"
     databasePath: "/app/data/auth.db"
-    jwtSecretKey: "your-secret-key-here-please-change-in-production"
     jwtAccessTokenDuration: "86400"
     jwtRefreshTokenDuration: "604800"
     cookieEnabled: "true"
@@ -189,10 +188,20 @@ auth:
     corsMaxAge: "86400"
     kubernetesConfigType: "incluster"
     kubernetesKubeconfigPath: ""
-    encryptionKey: "aB3dE6gH9jK2mN5pQ8sT1vW4yZ7xC0uF"
     logOutput: "stdout"
     logAuditFile: "/app/data/audit.log"
     logFallbackFile: "/app/data/fallback.log"
+
+  # Sensitive auth config, rendered into the synstream-auth-secret Secret.
+  # Supply real values at install time (--set auth.secrets.jwtSecretKey=...,
+  # auth.secrets.encryptionKey=...) or via an external/sealed secret. Leaving
+  # these empty makes the auth service fail fast at startup rather than booting
+  # with an insecure default.
+  #   jwtSecretKey:  generate with: openssl rand -base64 48
+  #   encryptionKey: exactly 32 bytes, e.g.: openssl rand -base64 32 | head -c 32
+  secrets:
+    jwtSecretKey: ""
+    encryptionKey: ""
 
   podAnnotations: {}
   nodeSelector: {}

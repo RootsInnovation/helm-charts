@@ -40,6 +40,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: synstream-auth-config
+            - secretRef:
+                name: synstream-auth-secret
           resources:
             {{- toYaml .Values.auth.resources | nindent 12 }}
           volumeMounts:

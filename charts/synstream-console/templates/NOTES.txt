@@ -93,11 +93,11 @@ kubectl logs --namespace {{ .Release.Namespace }} -l app=synstream-ai -f
 # Check persistent volumes (StatefulSets)
 kubectl get pvc --namespace {{ .Release.Namespace }}
 
-{{ if and .Values.auth.enabled (eq .Values.auth.config.jwtSecretKey "your-secret-key-here-please-change-in-production") }}
-⚠️  WARNING: Default JWT secret key detected in auth service!
+{{ if and .Values.auth.enabled (empty .Values.auth.secrets.jwtSecretKey) }}
+⚠️  WARNING: Auth JWT secret is not set; the auth service will fail to start.
    For production, set a secure random key:
-   
-   --set auth.config.jwtSecretKey="your-secure-random-key"
+
+   --set auth.secrets.jwtSecretKey="$(openssl rand -base64 48)"
 {{ end }}
 
 

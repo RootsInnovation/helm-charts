@@ -10,7 +10,7 @@ data:
   SERVER_PORT: {{ .Values.auth.config.serverPort | quote }}
   DATABASE_TYPE: {{ .Values.auth.config.databaseType | quote }}
   DATABASE_PATH: {{ .Values.auth.config.databasePath | quote }}
-  JWT_SECRET_KEY: {{ .Values.auth.config.jwtSecretKey | quote }}
+  # JWT_SECRET_KEY is provided by the synstream-auth-secret Secret, not here.
   JWT_ACCESS_TOKEN_DURATION: {{ .Values.auth.config.jwtAccessTokenDuration | quote }}
   JWT_REFRESH_TOKEN_DURATION: {{ .Values.auth.config.jwtRefreshTokenDuration | quote }}
   COOKIE_ENABLED: {{ .Values.auth.config.cookieEnabled | quote }}
@@ -24,7 +24,7 @@ data:
   CORS_MAX_AGE: {{ .Values.auth.config.corsMaxAge | quote }}
   KUBERNETES_CONFIG_TYPE: {{ .Values.auth.config.kubernetesConfigType | quote }}
   KUBERNETES_KUBECONFIG_PATH: {{ .Values.auth.config.kubernetesKubeconfigPath | quote }}
-  ENCRYPTION_KEY: {{ .Values.auth.config.encryptionKey | quote }}
+  # ENCRYPTION_KEY is provided by the synstream-auth-secret Secret, not here.
   LOG_OUTPUT: {{ .Values.auth.config.logOutput | quote }}
   LOG_AUDIT_FILE: {{ .Values.auth.config.logAuditFile | quote }}
   LOG_FALLBACK_FILE: {{ .Values.auth.config.logFallbackFile | quote }}
